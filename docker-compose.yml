@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  postgres:
+    container_name: blog_postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "12345"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ../init-database/:/docker-entrypoint-initdb.d
+      - .:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped

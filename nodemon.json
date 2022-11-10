@@ -1,0 +1,6 @@
+{
+    "watch": ["src"],
+    "ext": "ts",
+    "exec": "cross-env IS_TS_NODE=true ts-node src/main.ts"
+}
+    
