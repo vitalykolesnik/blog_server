@@ -29,7 +29,7 @@ export class UserEntity {
   login: string;
 
   @ApiProperty()
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @BeforeInsert()

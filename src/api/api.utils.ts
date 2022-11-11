@@ -8,6 +8,16 @@ export const createDocumentation = (path: string, app: INestApplication) => {
     .setVersion('0.0.1')
     .addTag('users')
     .addTag('tags')
+    .addBearerAuth(
+      {
+        description: 'JWT Authorization',
+        type: 'http',
+        in: 'header',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      'access-token',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup(path, app, document);

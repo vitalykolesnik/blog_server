@@ -1,11 +1,17 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { sign } from 'jsonwebtoken';
 import { JWT_SECRET } from '@app/config';
-import { CreateUserDto } from '@app/user/dto/createUserDto.dto';
-import { UserEntity } from '@app/user/entity/user.entity';
 import { UserResponseInterface } from '@app/user/types/userResponse.interface';
+import { UserEntity } from '@app/user/entity/user.entity';
+import { CreateUserDto } from '@app/user/dto/createUser.dto';
+import { LoginUserDto } from '@app/user/dto/loginUser.dto';
+import { compare } from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -15,11 +21,11 @@ export class UserService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
-    const userByEmail = await this.userRepository.findOneBy({
-      email: createUserDto.email,
+    const userByEmail = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
     });
-    const userByLogin = await this.userRepository.findOneBy({
-      login: createUserDto.login,
+    const userByLogin = await this.userRepository.findOne({
+      where: { login: createUserDto.login },
     });
     if (userByEmail || userByLogin) {
       throw new UnprocessableEntityException('Email or login are taken');
@@ -27,6 +33,31 @@ export class UserService {
     const newUser = new UserEntity();
     Object.assign(newUser, createUserDto);
     return await this.userRepository.save(newUser);
+  }
+
+  async loginUser(loginUserDto: LoginUserDto): Promise<UserEntity> {
+    const userByEmail = await this.userRepository.findOne({
+      where: { email: loginUserDto.email },
+      select: ['id', 'username', 'login', 'bio', 'image', 'password'],
+    });
+    if (!userByEmail) {
+      throw new UnprocessableEntityException('Email or password are not valid');
+    }
+    const isPasswordCorrect = await compare(
+      loginUserDto.password,
+      userByEmail.password,
+    );
+    if (!isPasswordCorrect) {
+      throw new UnprocessableEntityException('Email or password are not valid');
+    }
+    delete userByEmail.password;
+    return userByEmail;
+  }
+
+  findUserById(id: number): Promise<UserEntity> {
+    return this.userRepository.findOne({
+      where: { id },
+    });
   }
 
   buildUserResponse(user: UserEntity): UserResponseInterface {
