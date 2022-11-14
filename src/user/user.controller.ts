@@ -31,7 +31,12 @@ export class UserController {
   @ApiBody({
     type: CreateUserRequestDto,
   })
-  @UsePipes(new ValidationPipe())
+  @UsePipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  )
   async createUser(
     @Body('user') createUserDto: CreateUserDto,
   ): Promise<UserResponseInterface> {
