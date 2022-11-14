@@ -1,20 +1,26 @@
-import { ExpressRequestInterface } from '@app/types/expressRequest.interface';
 import {
   Body,
   Controller,
   Get,
   Post,
-  Req,
+  Put,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { UserEntity } from '@app/user/entity/user.entity';
 import { UserService } from '@app/user/user.service';
 import { UserResponseInterface } from '@app/user/types/userResponse.interface';
 import { CreateUserDto } from '@app/user/dto/createUser.dto';
 import { LoginUserDto } from '@app/user/dto/loginUser.dto';
+import { UpdateUserDto } from '@app/user/dto/updateUser.dto';
+import { User } from '@app/decorators/user.decorator';
+import { AuthGuard } from '@app/guards/auth.guard';
+
 import { CreateUserRequestDto } from '@app/user/dto/createUserRequest.dto';
 import { LoginUserRequestDto } from '@app/user/dto/loginUserRequest.dto';
+import { UpdateUserRequestDto } from '@app/user/dto/updateUserRequest.dto';
 
 @ApiTags('users')
 @Controller()
@@ -46,10 +52,32 @@ export class UserController {
   }
 
   @Get('user')
+  @UseGuards(AuthGuard)
   @ApiBearerAuth('access-token')
-  async currentUser(
-    @Req() request: ExpressRequestInterface,
+  async currentUser(@User() user: UserEntity): Promise<UserResponseInterface> {
+    return this.userService.buildUserResponse(user);
+  }
+
+  @Put('user')
+  @ApiBody({
+    type: UpdateUserRequestDto,
+  })
+  @UsePipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  )
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('access-token')
+  async updateUser(
+    @User('id') currentUserId: number,
+    @Body('user') updateUserDto: UpdateUserDto,
   ): Promise<UserResponseInterface> {
-    return this.userService.buildUserResponse(request.user);
+    const updatedUser = await this.userService.updateUser(
+      currentUserId,
+      updateUserDto,
+    );
+    return this.userService.buildUserResponse(updatedUser);
   }
 }

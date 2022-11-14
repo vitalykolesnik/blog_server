@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { sign } from 'jsonwebtoken';
@@ -10,6 +6,7 @@ import { JWT_SECRET } from '@app/config';
 import { UserResponseInterface } from '@app/user/types/userResponse.interface';
 import { UserEntity } from '@app/user/entity/user.entity';
 import { CreateUserDto } from '@app/user/dto/createUser.dto';
+import { UpdateUserDto } from '@app/user/dto/updateUser.dto';
 import { LoginUserDto } from '@app/user/dto/loginUser.dto';
 import { compare } from 'bcrypt';
 
@@ -24,11 +21,8 @@ export class UserService {
     const userByEmail = await this.userRepository.findOne({
       where: { email: createUserDto.email },
     });
-    const userByLogin = await this.userRepository.findOne({
-      where: { login: createUserDto.login },
-    });
-    if (userByEmail || userByLogin) {
-      throw new UnprocessableEntityException('Email or login are taken');
+    if (userByEmail) {
+      throw new UnprocessableEntityException('Email is are taken');
     }
     const newUser = new UserEntity();
     Object.assign(newUser, createUserDto);
@@ -38,7 +32,7 @@ export class UserService {
   async loginUser(loginUserDto: LoginUserDto): Promise<UserEntity> {
     const userByEmail = await this.userRepository.findOne({
       where: { email: loginUserDto.email },
-      select: ['id', 'username', 'login', 'bio', 'image', 'password'],
+      select: ['id', 'username', 'bio', 'image', 'email', 'password'],
     });
     if (!userByEmail) {
       throw new UnprocessableEntityException('Email or password are not valid');
@@ -52,6 +46,15 @@ export class UserService {
     }
     delete userByEmail.password;
     return userByEmail;
+  }
+
+  async updateUser(
+    userId: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserEntity> {
+    const userById = await this.findUserById(userId);
+    Object.assign(userById, updateUserDto);
+    return await this.userRepository.save(userById);
   }
 
   findUserById(id: number): Promise<UserEntity> {

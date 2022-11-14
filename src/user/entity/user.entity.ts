@@ -9,7 +9,7 @@ export class UserEntity {
   id: number;
 
   @ApiProperty()
-  @Column()
+  @Column({ select: false })
   email: string;
 
   @ApiProperty()
@@ -23,10 +23,6 @@ export class UserEntity {
   @ApiProperty()
   @Column()
   username: string;
-
-  @ApiProperty()
-  @Column()
-  login: string;
 
   @ApiProperty()
   @Column({ select: false })
