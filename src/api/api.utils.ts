@@ -8,6 +8,7 @@ export const createDocumentation = (path: string, app: INestApplication) => {
     .setVersion('0.0.1')
     .addTag('users')
     .addTag('tags')
+    .addTag('article')
     .addBearerAuth(
       {
         description: 'JWT Authorization',
