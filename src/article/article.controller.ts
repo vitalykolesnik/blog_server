@@ -11,7 +11,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from '@app/user/entity/user.entity';
 import { ArticleService } from '@app/article/article.service';
 import { CreateArticleDto } from '@app/article/dto/createArticle.dto';
@@ -25,6 +25,19 @@ import { User } from '@app/decorators/user.decorator';
 @Controller('articles')
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
+
+  @Get()
+  @ApiQuery({ name: 'offset', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'author', required: false })
+  @ApiQuery({ name: 'tag', required: false })
+  @ApiBearerAuth('access-token')
+  async findAll(
+    @User('id') currentUserId: number,
+    @Query() query: any,
+  ): Promise<ArticlesResponseInterface> {
+    return await this.articleService.findAll(currentUserId, query);
+  }
 
   @Post()
   @ApiBody({ type: CreateArticleRequestDto })
@@ -53,12 +66,6 @@ export class ArticleController {
   ): Promise<ArticleResponseInterface> {
     const article = await this.articleService.findBySlug(slug);
     return this.articleService.buildArticleResponse(article);
-  }
-
-  @Get()
-  async findAllArticles(): Promise<ArticlesResponseInterface> {
-    const article = await this.articleService.findAllArticles();
-    return this.articleService.buildArticlesResponse(article);
   }
 
   @Delete(':slug')
