@@ -1,3 +1,4 @@
+import { DeleteResult } from 'typeorm';
 import {
   Body,
   Controller,
@@ -31,6 +32,7 @@ export class ArticleController {
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'author', required: false })
   @ApiQuery({ name: 'tag', required: false })
+  @ApiQuery({ name: 'favorited', required: false })
   @ApiBearerAuth('access-token')
   async findAll(
     @User('id') currentUserId: number,
@@ -74,7 +76,7 @@ export class ArticleController {
   async deleteArticle(
     @User('id') currentUserId: number,
     @Param('slug') slug: string,
-  ) {
+  ): Promise<DeleteResult> {
     await this.articleService.deleteArticle(currentUserId, slug);
     return '' as any;
   }
@@ -93,11 +95,39 @@ export class ArticleController {
     @User('id') currentUserId: number,
     @Param('slug') slug: string,
     @Body('article') articleUpdateDto: CreateArticleDto,
-  ) {
+  ): Promise<ArticleResponseInterface> {
     const article = await this.articleService.updateArticle(
       currentUserId,
       slug,
       articleUpdateDto,
+    );
+    return this.articleService.buildArticleResponse(article);
+  }
+
+  @Post(':slug/favorite')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('access-token')
+  async addArticleToFavorite(
+    @User('id') currentUserId: number,
+    @Param('slug') slug: string,
+  ): Promise<ArticleResponseInterface> {
+    const article = await this.articleService.addArticleToFavorite(
+      currentUserId,
+      slug,
+    );
+    return this.articleService.buildArticleResponse(article);
+  }
+
+  @Delete(':slug/favorite')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('access-token')
+  async removeArticleFromFavorite(
+    @User('id') currentUserId: number,
+    @Param('slug') slug: string,
+  ): Promise<ArticleResponseInterface> {
+    const article = await this.articleService.removeArticleFromFavorite(
+      currentUserId,
+      slug,
     );
     return this.articleService.buildArticleResponse(article);
   }
