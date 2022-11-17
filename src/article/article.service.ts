@@ -31,7 +31,22 @@ export class ArticleService {
     const queryBuilder = dataSource
       .getRepository(ArticleEntity)
       .createQueryBuilder('articles')
-      .leftJoinAndSelect('articles.author', 'author');
+      .leftJoinAndSelect('articles.author', 'author'); // left join -> add author to articles table
+
+    if (query.favorited) {
+      // find articles which 'user.username = query.favorited' liked
+      const author = await this.userRepository.findOne({
+        where: { username: query.favorited },
+        relations: ['favorites'],
+      });
+      const ids = author.favorites.map((el) => el.id); // get id of articles from 'user.favorites'
+
+      if (ids.length > 0) {
+        queryBuilder.andWhere('articles.id IN(:...ids)', { ids }); // find articles with id = ids
+      } else {
+        queryBuilder.andWhere('1=0'); // if ids not found
+      }
+    }
 
     if (query.favorited) {
       const author = await this.userRepository.findOne({
@@ -50,11 +65,13 @@ export class ArticleService {
 
     if (query.tag) {
       queryBuilder.andWhere('articles.tagList LIKE :tag', {
+        // find articles where 'articles.tagList contain query.tag'
         tag: `%${query.tag}%`,
       });
     }
 
     if (query.author) {
+      // find 'articles' by 'author'
       const author = await this.userRepository.findOneBy({
         username: query.author,
       });
@@ -62,26 +79,27 @@ export class ArticleService {
       if (!author) {
         throw new NotFoundException('Author not found');
       }
-      queryBuilder.andWhere('articles.authorId = :id', { id: author.id });
+      queryBuilder.andWhere('articles.authorId = :id', { id: author.id }); // find articles by 'author.id'
     }
 
     queryBuilder.orderBy('articles.createdAt', 'ASC');
     queryBuilder.limit(query.limit || 10);
     queryBuilder.offset(query.offset || 0);
 
-    let favoriteIds: number[] = [];
+    let favoriteIds: number[] = []; // create 'favoriteIds', than show 'id' of 'favorited' article
+
     if (currentUserId) {
       const currentUser = await this.userRepository.findOne({
         where: { id: currentUserId },
         relations: ['favorites'],
       });
-      favoriteIds = currentUser.favorites.map((favorite) => favorite.id);
+      favoriteIds = currentUser.favorites.map((favorite) => favorite.id); // set 'favoriteIds' from 'favorites' table
     }
 
-    const articles = await queryBuilder.getMany();
-    const articlesCount = await queryBuilder.getCount();
+    const articles = await queryBuilder.getMany(); // return articles
+    const articlesCount = await queryBuilder.getCount(); // return articles count
     const articlesWithFavorites = articles.map((article) => {
-      const favorited = favoriteIds.includes(article.id);
+      const favorited = favoriteIds.includes(article.id); // add every 'article' field 'favorited'
       return { ...article, favorited };
     });
 
