@@ -6,6 +6,7 @@ import { TagModule } from '@app/tag/tag.module';
 import { UserModule } from '@app/user/user.module';
 import { ArticleModule } from '@app/article/article.module';
 import { ProfileModule } from '@app/profile/profile.module';
+import { CommentModule } from '@app/comment/comment.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ProfileModule } from '@app/profile/profile.module';
     UserModule,
     ArticleModule,
     ProfileModule,
+    CommentModule,
   ],
 })
 export class AppModule {

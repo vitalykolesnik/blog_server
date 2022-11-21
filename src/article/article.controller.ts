@@ -89,8 +89,7 @@ export class ArticleController {
     @User('id') currentUserId: number,
     @Param('slug') slug: string,
   ): Promise<DeleteResult> {
-    await this.articleService.deleteArticle(currentUserId, slug);
-    return '' as any;
+    return await this.articleService.deleteArticle(currentUserId, slug);
   }
 
   @Put(':slug')

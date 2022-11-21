@@ -10,10 +10,11 @@ export const createDocumentation = (path: string, app: INestApplication) => {
     .addTag('tags')
     .addTag('articles')
     .addTag('profiles')
+    .addTag('comments')
     .addBearerAuth(
       {
         description:
-          'JWT Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsInVzZXJuYW1lIjoiamVycnkiLCJlbWFpbCI6ImplcnJ5QGdtYWlsLmNvbSIsImlhdCI6MTY2ODYwMTk5OX0.841aonX68RhS62a4Nm8GRy3xBxjsrw2f0jIZBLc2zkQ',
+          'JWT Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJqZXJyeSIsImVtYWlsIjoiamVycnlAZ21haWwuY29tIiwiaWF0IjoxNjY5MDMyMTMyfQ.2HuEn3dIDY8hd3UlU_SbDIOOFXQZ4jisqfefB9AXj8U',
         type: 'http',
         in: 'header',
         scheme: 'bearer',

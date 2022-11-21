@@ -51,7 +51,7 @@ export class ProfileService {
       throw new NotFoundException('User does not found');
     }
 
-    if (currentUserId !== user.id) {
+    if (currentUserId === user.id) {
       throw new BadRequestException('Follower and following cant be equal');
     }
 
@@ -82,7 +82,7 @@ export class ProfileService {
       throw new NotFoundException('User does not found');
     }
 
-    if (currentUserId !== user.id) {
+    if (currentUserId === user.id) {
       throw new BadRequestException('Follower and following cant be equal');
     }
 

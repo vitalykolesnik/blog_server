@@ -125,6 +125,9 @@ export class ArticleService {
       .getRepository(ArticleEntity)
       .createQueryBuilder('articles')
       .leftJoinAndSelect('articles.author', 'author')
+      .leftJoinAndSelect('articles.comments', 'comments')
+      .leftJoinAndSelect('comments.author', 'commenter')
+
       .where('articles.authorId IN (:...ids)', { ids: followingUserIds });
 
     queryBuilder.orderBy('articles.createdAt', 'DESC');
@@ -148,6 +151,7 @@ export class ArticleService {
       article.tagList = [];
     }
 
+    article.comments = [];
     article.slug = this.getSlug(createArticleDto.title);
     article.author = currentUser;
     return await this.articleRepository.save(article);
@@ -156,10 +160,12 @@ export class ArticleService {
   async findBySlug(slug: string): Promise<ArticleEntity> {
     const article = await this.articleRepository.findOne({
       where: { slug },
+      relations: ['comments'],
     });
     if (!article) {
       throw new UnprocessableEntityException('Article does not found');
     }
+
     return article;
   }
 
