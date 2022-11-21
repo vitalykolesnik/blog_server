@@ -9,6 +9,7 @@ export const createDocumentation = (path: string, app: INestApplication) => {
     .addTag('users')
     .addTag('tags')
     .addTag('articles')
+    .addTag('profiles')
     .addBearerAuth(
       {
         description:

@@ -18,7 +18,7 @@ export class UserEntity {
   id: number;
 
   @ApiProperty()
-  @Column({ select: false })
+  @Column()
   email: string;
 
   @ApiProperty()

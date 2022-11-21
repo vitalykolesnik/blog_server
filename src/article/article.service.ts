@@ -8,12 +8,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
 import slugify from 'slugify';
 import { v4 } from 'uuid';
+import { dataSource } from '@app/ormconfig';
 import { ArticleEntity } from '@app/article/entity/article.entity';
 import { UserEntity } from '@app/user/entity/user.entity';
 import { CreateArticleDto } from '@app/article/dto/createArticle.dto';
 import { ArticleResponseInterface } from '@app/article/types/articleResponse.interface';
 import { ArticlesResponseInterface } from '@app/article/types/articlesResponse.interface';
-import { dataSource } from '@app/ormconfig';
 
 @Injectable()
 export class ArticleService {
