@@ -13,8 +13,8 @@ import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@app/guards/auth.guard';
 import { User } from '@app/decorators/user.decorator';
 import { UserEntity } from '@app/user/entity/user.entity';
-import { CreateCommentDto } from '@app/comment/dto/createComment.dto';
 import { CommentService } from '@app/comment/comment.service';
+import { CreateCommentDto } from '@app/comment/dto/createComment.dto';
 import { CreateCommentRequestDto } from '@app/comment/dto/createCommentRequest.dto';
 import { CommentResponseInterface } from '@app/comment/types/commentResponse.interface';
 
