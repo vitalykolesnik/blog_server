@@ -41,6 +41,18 @@ export class ArticleController {
     return await this.articleService.findAll(currentUserId, query);
   }
 
+  @Get('feed')
+  @ApiQuery({ name: 'offset', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('access-token')
+  async getFeed(
+    @User('id') currentUserId,
+    @Query() query: any,
+  ): Promise<ArticlesResponseInterface> {
+    return await this.articleService.findFeed(currentUserId, query);
+  }
+
   @Post()
   @ApiBody({ type: CreateArticleRequestDto })
   @UseGuards(AuthGuard)
